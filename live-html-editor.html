@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live HTML Renderer (with Syntax Highlighting)</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+    .toolbar {
+      background: #f4f4f4;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+    }
+    .left, .right {
+      flex: 1;
+      height: 100%;
+    }
+    .left {
+      border-right: 1px solid #ddd;
+      background: white;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #editor {
+      height: 100%;
+    }
+    button {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/eclipse.min.css">
+</head>
+<body>
+
+  <div class="toolbar">
+    <button id="runBtn">Run</button>
+    <label>
+      <input type="checkbox" id="autoUpdate" checked>
+      Auto Update
+    </label>
+  </div>
+
+  <div class="container">
+    <div class="left">
+      <iframe id="preview"></iframe>
+    </div>
+    <div class="right">
+      <textarea id="editor"></textarea>
+    </div>
+  </div>
+
+  <!-- CodeMirror Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/xml/xml.min.js"></script>
+
+  <script>
+    const preview = document.getElementById('preview');
+    const runBtn = document.getElementById('runBtn');
+    const autoUpdate = document.getElementById('autoUpdate');
+
+    const initialCode = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Preview</title>
+    <style>
+      body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+      h1 { color: #007bff; }
+    </style>
+  </head>
+  <body>
+    <h1>Hello, Live Preview!</h1>
+    <p>Edit HTML code on the right →</p>
+  </body>
+</html>`;
+
+    // Initialize CodeMirror editor
+    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+      lineNumbers: true,
+      mode: 'htmlmixed',
+      theme: 'eclipse',
+      tabSize: 2
+    });
+
+    editor.setValue(initialCode);
+
+    // Update iframe
+    function updatePreview() {
+      const code = editor.getValue();
+      preview.srcdoc = code;
+    }
+
+    // Manual update
+    runBtn.addEventListener('click', updatePreview);
+
+    // Auto update with debounce
+    let debounceTimer;
+    editor.on('change', () => {
+      if (autoUpdate.checked) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updatePreview, 400);
+      }
+    });
+
+    // Initial load
+    updatePreview();
+  </script>
+
+</body>
+</html>
