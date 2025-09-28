@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Email Template Renderer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #preview {
+      width: 50%;
+      padding: 20px;
+      background: #f9f9f9;
+      border-right: 2px solid #ccc;
+      overflow: auto;
+    }
+    #editor-container {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      width: 100%;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+      resize: none;
+      border: none;
+      border-top: 1px solid #ccc;
+      flex: 1;
+      outline: none;
+    }
+    #controls {
+      background: #f1f1f1;
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="preview">
+    <h2>Rendered Email Preview</h2>
+    <p>Output will appear here.</p>
+  </div>
+
+  <div id="editor-container">
+    <div id="controls">
+      <h3>Email Template & Data</h3>
+      <button id="renderBtn">Render Email</button>
+    </div>
+
+    <textarea id="templateEditor" placeholder="Write your email HTML template here...">
+<h1>Hello {{name}},</h1>
+<p>Your order {{orderId}} has been shipped!</p>
+<p>Thank you for shopping with us.</p>
+    </textarea>
+
+    <textarea id="jsonEditor" placeholder="Enter your JSON data here...">
+{
+  "name": "Venugopal",
+  "orderId": "12345"
+}
+    </textarea>
+  </div>
+
+  <script>
+    const renderBtn = document.getElementById('renderBtn');
+    const templateEditor = document.getElementById('templateEditor');
+    const jsonEditor = document.getElementById('jsonEditor');
+    const preview = document.getElementById('preview');
+
+    function renderEmail() {
+      const template = templateEditor.value;
+      let data;
+      try {
+        data = JSON.parse(jsonEditor.value);
+      } catch (e) {
+        preview.innerHTML = "<p style='color:red;'>Invalid JSON format</p>";
+        return;
+      }
+
+      let output = template;
+      for (const key in data) {
+        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+        output = output.replace(regex, data[key]);
+      }
+
+      preview.innerHTML = output;
+    }
+
+    renderBtn.addEventListener('click', renderEmail);
+
+    // Initial render
+    renderEmail();
+  </script>
+
+</body>
+</html>
